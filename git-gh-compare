@@ -3,6 +3,8 @@
 origin=$(git config "remote.origin.url") || exit $?
 upstream=$(git config "remote.upstream.url") || exit $?
 
+branch=$(git symbolic-ref HEAD) || exit $?
+
 #what is the name in the upstream
 substart=`awk -v a="${upstream}" -v b=":" 'BEGIN{print index(a,b)}'`
 subend=`awk -v a="${upstream}" -v b="/" 'BEGIN{print index(a,b)}'`
@@ -14,9 +16,12 @@ origin=${origin/://}
 origin=${origin/git@/http://}
 origin=${origin/.git/}
 
-link=$(git for-each-ref --format=':%(upstream:short)...%(refname:short)' refs/heads/6_4_3-Bug43663-WorkflowModuleHotfix)
+link=$(git for-each-ref --format=':%(upstream:short)...%(refname:short)' $branch)
+link=${link/upstream\//}
 
 url=$origin"/compare/"$upstream$link
+
+git push -q origin $branch
 
 if which xdg-open > /dev/null; then
   xdg-open $url
