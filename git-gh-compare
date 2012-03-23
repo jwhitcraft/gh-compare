@@ -4,6 +4,8 @@ origin=$(git config "remote.origin.url") || exit $?
 upstream=$(git config "remote.upstream.url") || exit $?
 
 branch=$(git symbolic-ref HEAD) || exit $?
+# clean the branch name
+cbranch=${branch/refs\/heads\//}
 
 #what is the name in the upstream
 substart=`awk -v a="${upstream}" -v b=":" 'BEGIN{print index(a,b)}'`
@@ -18,14 +20,17 @@ origin=${origin/.git/}
 
 link=$(git for-each-ref --format=':%(upstream:short)...%(refname:short)' $branch)
 if [[ $link = ':...'* ]]; then
-    echo "Branch (${branch}) is not tracking a remote branch";
+    
+    echo "Branch (${cbranch}) is not tracking a remote branch"
+    echo "To track a branch run the following command:"
+    echo "   git branch --set-upstream ${cbranch} <branch to track from>"
     exit
 fi
 link=${link/upstream\//}
 
 url=$origin"/compare/"$upstream$link
 
-git push -q origin $branch
+git push -q origin $cbranch
 
 if which xdg-open > /dev/null; then
   xdg-open $url
