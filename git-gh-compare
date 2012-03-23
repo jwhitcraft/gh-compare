@@ -17,6 +17,10 @@ origin=${origin/git@/http://}
 origin=${origin/.git/}
 
 link=$(git for-each-ref --format=':%(upstream:short)...%(refname:short)' $branch)
+if [[ $link = ':...'* ]]; then
+    echo "Branch (${branch}) is not tracking a remote branch";
+    exit
+fi
 link=${link/upstream\//}
 
 url=$origin"/compare/"$upstream$link
