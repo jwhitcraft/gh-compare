@@ -23,7 +23,7 @@ if [[ $link = ':...'* ]]; then
     
     echo "Branch (${cbranch}) is not tracking a remote branch"
     echo "To track a branch run the following command:"
-    echo "   git branch --set-upstream ${cbranch} <branch to track from>"
+    echo "   git branch --set-upstream-to ${cbranch} <branch to track from>"
     while true; do
     read -p "Which Branch Do You Want to track? (enter \`exit\` to quit): " trackbranch
         case $trackbranch in
@@ -31,7 +31,7 @@ if [[ $link = ':...'* ]]; then
             * ) 
                 git show-branch ${trackbranch} 1> /dev/null 2>&1
                 if [ $? == 0 ]; then 
-                    git branch --set-upstream ${cbranch} ${trackbranch}
+                    git branch --set-upstream-to ${cbranch} ${trackbranch}
                     link=$(git for-each-ref --format=':%(upstream:short)...%(refname:short)' $branch)
                     break
                 else
