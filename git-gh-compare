@@ -43,7 +43,7 @@ if [[ $link = ':...'* ]]; then
 fi
 link=${link/upstream\//}
 
-url=$origin"/compare/"$upstream$link
+url=$origin"/pull/new/"$upstream$link
 
 git push -q origin $cbranch
 
