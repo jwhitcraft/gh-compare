@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+
+if ! `which hub >/dev/null`; then
+    echo 'Hub (https://github.com/defunkt/hub) is not installed, Please install it to use this script'
+    exit 1;
+fi
+
+origin=$(git config "remote.origin.url") || exit $?
+upstream=$(git config "remote.upstream.url") || exit $?
+
+branch=$(git symbolic-ref HEAD) || exit $?
+# clean the branch name
+cbranch=${branch/refs\/heads\//}
+
+#what is the name in the upstream
+substart=`awk -v a="${upstream}" -v b=":" 'BEGIN{print index(a,b)}'`
+subend=`awk -v a="${upstream}" -v b="/" 'BEGIN{print index(a,b)}'`
+
+upstream=`echo ${upstream} | cut -c$((substart+1))-$((subend-1))`
+
+#what is the name in the origin
+substart=`awk -v a="${origin}" -v b=":" 'BEGIN{print index(a,b)}'`
+subend=`awk -v a="${origin}" -v b="/" 'BEGIN{print index(a,b)}'`
+
+origin=`echo ${origin} | cut -c$((substart+1))-$((subend-1))`
+
+link=$(git for-each-ref --format=':%(upstream:short)...%(refname:short)' $branch)
+if [[ $link = ':...'* ]]; then
+    
+    echo "Branch (${cbranch}) is not tracking a remote branch"
+    echo "To track a branch run the following command:"
+    echo "   git branch --set-upstream-to=<branch to track from> ${cbranch}"
+    while true; do
+    read -p "Which Branch Do You Want to track? (enter \`exit\` to quit): " trackbranch
+        case $trackbranch in
+            exit ) exit;;
+            * ) 
+                git show-branch ${trackbranch} 1> /dev/null 2>&1
+                if [ $? == 0 ]; then 
+                    git branch --set-upstream-to=${trackbranch} ${cbranch}
+                    link=$(git for-each-ref --format=':%(upstream:short)...%(refname:short)' $branch)
+                    break
+                else
+                    echo "Branch ${trackbranch} does not exist, try again"
+                fi
+            ;;
+        esac
+    done
+fi
+link=${link/upstream\//}
+
+substart=`awk -v a="${link}" -v b=":" 'BEGIN{print index(a,b)}'`
+subend=`awk -v a="${link}" -v b="..." 'BEGIN{print index(a,b)}'`
+
+upstream_branch=`echo ${link} | cut -c$((substart+1))-$((subend-1))`
+
+git push -q origin $cbranch
+
+hub pull-request -b ${upstream}:${upstream_branch} -h $origin:$cbranch
+
+#if which xdg-open > /dev/null; then
+#  xdg-open $url
+#elif which gnome-open > /dev/null; then
+#  gnome-open $url
+#else
+  # just try and open comand
+#  open $url
+#fi

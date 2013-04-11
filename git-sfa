@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+BRANCHNAME=7_0_0-sugar7-sfa$1
+git show-ref --verify --quiet refs/heads/${BRANCHNAME}
+
+if [ $? -eq 1 ]; then
+    git branch ${BRANCHNAME} 7_0_0-sugar7
+    git branch -u upstream/master ${BRANCHNAME}
+fi
+
+git checkout ${BRANCHNAME}
+
