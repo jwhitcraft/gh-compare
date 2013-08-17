@@ -1,11 +1,22 @@
 #!/usr/bin/env bash
 
+if [ -z $1 ]; then
+    echo 'Dumbass you need a ticket number, try again!'
+    exit;
+fi
+
 BRANCHNAME=7_0_0-sugar7-sfa$1
 git show-ref --verify --quiet refs/heads/${BRANCHNAME}
 
 if [ $? -eq 1 ]; then
-    git branch ${BRANCHNAME} 7_0_0-sugar7
-    git branch -u upstream/master ${BRANCHNAME}
+    echo 'Creating new branch....'
+    if [ -z $2 ]; then
+        git branch ${BRANCHNAME} 7_0_0-sugar7
+        git branch -u upstream/master ${BRANCHNAME}
+    else
+        git branch ${BRANCHNAME} $2
+        git branch -u $2 ${BRANCHNAME}
+    fi 
 fi
 
 git checkout ${BRANCHNAME}

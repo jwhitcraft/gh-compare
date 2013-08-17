@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
-cp git-gh-compare "$(git --exec-path)"/git-gh-compare
-cp git-sfa "$(git --exec-path)"/git-sfa
-cp git-cpr "$(git --exec-path)"/git-cpr
+cp git-gh-compare /usr/local/bin/git-gh-compare
+cp git-sfa /usr/local/bin/git-sfa
+cp git-cpr /usr/local/bin/git-cpr
+
+chmod +x /usr/local/bin/git-gh-compare
+chmod +x /usr/local/bin/git-sfa
+chmod +x /usr/local/bin/git-cpr
